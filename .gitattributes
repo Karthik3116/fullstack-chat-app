@@ -1,0 +1,8 @@
+# Enforce LF for all text files in this repo:
+* text eol=lf
+
+# Or, for JS/JSON/Markdown only:
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
