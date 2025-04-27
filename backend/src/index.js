@@ -73,6 +73,7 @@ app.use("/api/messages", messageRouts);
 console.log("🚀 Registered Routes:");
 
  
+connectDB();
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 //   app.get("/*splat", (req, res) => {
@@ -82,5 +83,4 @@ console.log("🚀 Registered Routes:");
 
 server.listen(PORT || 5001, () => {
   console.log("IO Server is running on port : " + (PORT || 5001));
-  connectDB();
 });
