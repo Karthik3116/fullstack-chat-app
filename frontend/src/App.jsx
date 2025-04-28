@@ -75,7 +75,7 @@ import LoginPage from "./pages/LoginPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 import SignUpPage from "./pages/SignUpPage";
-import CheckPage from "./pages/CheckPage";
+
 import NotFoundPage from "./components/NotFoundPage";
 
 import { useAuthStore } from "./store/useAuthStore";
@@ -129,10 +129,7 @@ function App() {
           path="/profile"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
-        <Route
-          path="/check"
-          element={<CheckPage />}
-        />
+        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
