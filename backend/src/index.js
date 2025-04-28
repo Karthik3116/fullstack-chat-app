@@ -62,7 +62,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://chat.karthik.top",
+  origin: "https://chat.karthik.top", //client url
   credentials: true
 }));
 

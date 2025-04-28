@@ -1,0 +1,9 @@
+
+const BASE_URL = "https://fullstack-chat-app-production-1228.up.railway.app"; in use auth store  -
+
+    baseURL : "https://fullstack-chat-app-production-1228.up.railway.app/api", in lib/axios   -
+
+    
+  origin: "https://chat.karthik.top", server/index.js -
+
+  origin: "http://localhost:5173",  server/lib/socket.js
