@@ -7,40 +7,42 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://chat.karthik.top", // no array needed unless multiple origins
-    credentials: true, // allow cookies/auth headers if needed
+    origin: "https://chat.karthik.top",
+    credentials: true,
   },
 });
 
-export function getReciverSocketId(userId){
-    return userSocketMap[userId];
+const userSocketMap = {}; // { userId: socketId }
+
+export function getReciverSocketId(userId) {
+  return userSocketMap[userId];
 }
-
-const userSocketMap = {};
-
-
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  const userId = socket.handshake.auth.userId; 
+  const userId = socket.handshake.auth?.userId; // safer: optional chaining
 
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+    console.log(`Mapped userId ${userId} to socketId ${socket.id}`);
+  }
 
-  if(userId) userSocketMap[userId] = socket.id;
-
+  // Always emit current online users
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-  console.log("Total Online users are " , userSocketMap)
+  console.log("Current Online Users:", userSocketMap);
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
-    delete userSocketMap[userId];
+    if (userId) {
+      delete userSocketMap[userId];
+      console.log(`Removed userId ${userId} from userSocketMap`);
+    }
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
-    console.log("Total Online users are " , userSocketMap)
+    console.log("Updated Online Users:", userSocketMap);
   });
 });
-
 
 export { app, server, io };
