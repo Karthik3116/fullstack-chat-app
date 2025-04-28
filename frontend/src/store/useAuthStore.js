@@ -225,7 +225,12 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  fetchMessages: async (userId, userToChatId) => {
+  ffetchMessages: async (userId, userToChatId) => {
+    if (!userId || !userToChatId) {
+      console.error("Missing userId or userToChatId in fetchMessages");
+      return;
+    }
+    
     try {
       const res = await axiosInstance.get(`/api/messages/${userToChatId}?userId=${userId}`);
       console.log("Messages fetched", res.data);
@@ -233,6 +238,7 @@ export const useAuthStore = create((set, get) => ({
       console.error("Error fetching messages", error);
     }
   },
+  
   
 
   checkAuth: async () => {
