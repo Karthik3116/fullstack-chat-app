@@ -97,7 +97,7 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      // Attempt to verify the user's authentication by making a request or validating the localStorage data
+      
       const storedUser = JSON.parse(localStorage.getItem("authUser"));
       if (storedUser) {
         // Optionally, you could make a request to verify the token or session here
