@@ -10,6 +10,7 @@ export const useAuthStore = create((set, get) => ({
   isSigningUp: false,
   isLoggingIn: false,
   isUpdatingProfile: false,
+  isCheckingAuth: true, // Flag to handle checking auth status on app load
   onlineUsers: [],
   socket: null,
 
@@ -91,6 +92,22 @@ export const useAuthStore = create((set, get) => ({
   disconnectSocket: () => {
     if (get().socket?.connected) {
       get().socket.disconnect();
+    }
+  },
+
+  checkAuth: async () => {
+    try {
+      // Attempt to verify the user's authentication by making a request or validating the localStorage data
+      const storedUser = JSON.parse(localStorage.getItem("authUser"));
+      if (storedUser) {
+        // Optionally, you could make a request to verify the token or session here
+        set({ authUser: storedUser, isCheckingAuth: false });
+      } else {
+        set({ authUser: null, isCheckingAuth: false });
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      set({ authUser: null, isCheckingAuth: false });
     }
   },
 }));
