@@ -5,7 +5,7 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = "https://chatbackend.karthik.top";
+const BASE_URL = "https://fullstack-chat-app-production-1228.up.railway.app";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
