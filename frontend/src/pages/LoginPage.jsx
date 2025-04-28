@@ -20,7 +20,7 @@ const LoginPage = () => {
   const handleSubmit = async(e)=>{
     e.preventDefault();
     await login(formData);
-    window.location.reload();
+    // window.location.reload();
   }
   return (
     <div className='min-h-screen grid lg:grid-cols-2'>
