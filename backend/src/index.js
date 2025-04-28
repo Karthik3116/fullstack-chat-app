@@ -81,4 +81,8 @@ console.log("🚀 DB Connected ");
 //   });
 // }
 
-export default app; 
+// export default app; 
+
+server.listen(PORT || 5001, () => {
+  console.log("IO Server is running on port : " + (PORT || 5001));
+});
