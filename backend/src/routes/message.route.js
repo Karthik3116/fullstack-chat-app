@@ -4,7 +4,7 @@ import {getUsersForSidebar, sendMessages , getMessages} from "../controllers/mes
 
 const router = express.Router();
 
-router.get("/users" , protectRoute , getUsersForSidebar);
+router.get("/users"  , getUsersForSidebar);
 
 router.get("/:id"  , getMessages);
 
