@@ -112,7 +112,6 @@
 //   },
 // }));
 
-
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
@@ -125,6 +124,7 @@ export const useAuthStore = create((set, get) => ({
   isSigningUp: false,
   isLoggingIn: false,
   isUpdatingProfile: false,
+  isCheckingAuth: false,  // 🔥 added for checkAuth()
   onlineUsers: [],
   socket: null,
 
@@ -173,12 +173,15 @@ export const useAuthStore = create((set, get) => ({
     set({ isUpdatingProfile: true });
     try {
       const { authUser } = get();
-      const res = await axiosInstance.put("/auth/update-profile", { ...data, userId: authUser._id });
+      const res = await axiosInstance.put("/auth/update-profile", {
+        ...data,
+        userId: authUser._id,
+      });
       set({ authUser: res.data });
       localStorage.setItem("authUser", JSON.stringify(res.data));
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.log("Error updating profile:", error);
+      console.error("Error updating profile:", error);
       toast.error(error.response?.data?.message || "Update failed");
     } finally {
       set({ isUpdatingProfile: false });
@@ -192,7 +195,7 @@ export const useAuthStore = create((set, get) => ({
       auth: {
         userId: authUser._id,
       },
-      withCredentials: false, // cookies are not used anymore
+      withCredentials: false, 
     });
 
     socket.connect();
@@ -204,18 +207,35 @@ export const useAuthStore = create((set, get) => ({
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) {
-      get().socket.disconnect();
+    const socket = get().socket;
+    if (socket?.connected) {
+      socket.disconnect();
+      set({ socket: null });
     }
   },
 
-  // New action for fetching messages with the userId
   fetchMessages: async (userId) => {
     try {
       const res = await axiosInstance.get(`/api/messages/users?userId=${userId}`);
-      console.log("Messages fetched", res.data);
+      console.log("Messages fetched:", res.data);
     } catch (error) {
-      console.error("Error fetching messages", error);
+      console.error("Error fetching messages:", error);
+      toast.error("Failed to fetch messages");
+    }
+  },
+
+  checkAuth: async () => {
+    set({ isCheckingAuth: true });
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("authUser"));
+      if (storedUser) {
+        set({ authUser: storedUser });
+        get().connectSocket(storedUser);
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+    } finally {
+      set({ isCheckingAuth: false });
     }
   },
 }));
