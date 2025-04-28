@@ -70,10 +70,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRouts);
 
 // Log all registered routes before starting the server
-console.log("🚀 Registered Routes:");
 
- 
+
 connectDB();
+console.log("🚀 DB Connected ");
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 //   app.get("/*splat", (req, res) => {
