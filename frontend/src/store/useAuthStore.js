@@ -189,24 +189,32 @@ export const useAuthStore = create((set, get) => ({
   },
 
   connectSocket: (authUser) => {
-    const { socket } = get();
-  
-    if (socket) return; // already connected, don't reconnect
-  
     if (!authUser) return;
   
-    const newSocket = io(BASE_URL, {
+    // Avoid multiple socket connects
+    if (get().socket && get().socket.connected) return;
+  
+    const socket = io(BASE_URL, {
       auth: { userId: authUser._id },
-      withCredentials: false,
-      transports: ["websocket"], // only use websocket, no polling
+      withCredentials: false, 
+      transports: ["websocket"], // important fix: force websocket only
     });
   
-    set({ socket: newSocket });
+    set({ socket });
   
-    newSocket.on("getOnlineUsers", (userIds) => {
+    socket.on("connect", () => {
+      console.log("Connected to socket.io server");
+    });
+  
+    socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+  
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket server");
+    });
   },
+  
   
 
   disconnectSocket: () => {
@@ -217,15 +225,15 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  fetchMessages: async (userId) => {
+  fetchMessages: async (userId, userToChatId) => {
     try {
-      const res = await axiosInstance.get(`/api/messages/users?userId=${userId}`);
-      console.log("Messages fetched:", res.data);
+      const res = await axiosInstance.get(`/api/messages/${userToChatId}?userId=${userId}`);
+      console.log("Messages fetched", res.data);
     } catch (error) {
-      console.error("Error fetching messages:", error);
-      toast.error("Failed to fetch messages");
+      console.error("Error fetching messages", error);
     }
   },
+  
 
   checkAuth: async () => {
     set({ isCheckingAuth: true });

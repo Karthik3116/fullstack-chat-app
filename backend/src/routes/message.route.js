@@ -8,7 +8,7 @@ router.get("/users"  , getUsersForSidebar);
 
 router.get("/:id"  , getMessages);
 
-router.post("/send/:id"  , sendMessages);
+router.post("/:id"  , sendMessages);
 
 
 export default router;
