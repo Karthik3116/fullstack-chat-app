@@ -7,42 +7,31 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://chat.karthik.top",
-    credentials: true,
+    origin: ["http://localhost:5173"],
   },
 });
 
-const userSocketMap = {}; // { userId: socketId }
-
-export function getReciverSocketId(userId) {
+export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
+// used to store online users
+const userSocketMap = {}; // {userId: socketId}
+
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("A user connected", socket.id);
 
-  const userId = socket.handshake.auth?.userId; // safer: optional chaining
+  const userId = socket.handshake.query.userId;
+  if (userId) userSocketMap[userId] = socket.id;
 
-  if (userId) {
-    userSocketMap[userId] = socket.id;
-    console.log(`Mapped userId ${userId} to socketId ${socket.id}`);
-  }
-
-  // Always emit current online users
+  // io.emit() is used to send events to all the connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
-  console.log("Current Online Users:", userSocketMap);
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
-
-    if (userId) {
-      delete userSocketMap[userId];
-      console.log(`Removed userId ${userId} from userSocketMap`);
-    }
-
+    console.log("A user disconnected", socket.id);
+    delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
-    console.log("Updated Online Users:", userSocketMap);
   });
 });
 
-export { app, server, io };
+export { io, app, server };
