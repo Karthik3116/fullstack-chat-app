@@ -96,14 +96,13 @@
 // export default ChatContainer;
 
 
+import React, { useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useEffect, useRef } from "react";
+import { useAuthStore } from "../store/useAuthStore";
 
-import { ChevronDown } from "lucide-react";            // ➊
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 
 const ChatContainer = () => {
@@ -115,17 +114,30 @@ const ChatContainer = () => {
     subscribeToMessages,
     unsubscribeFromMessages,
   } = useChatStore();
-  const { authUser } = useAuthStore();
-  const messageEndRef = useRef<HTMLDivElement>(null);
 
+  const { authUser } = useAuthStore();
+  const messageEndRef = useRef(null);
+
+  // 1) fetch & subscribe on user change
   useEffect(() => {
     getMessages(selectedUser._id);
     subscribeToMessages();
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [
+    selectedUser._id,
+    getMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  ]);
 
+  // 2) scroll fully to bottom on any messages update
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
   }, [messages]);
 
   if (isMessagesLoading) {
@@ -139,7 +151,7 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-auto"> {/* make parent relative */}
+    <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -162,6 +174,7 @@ const ChatContainer = () => {
                   }
                   alt="profile pic"
                   onError={(e) => {
+                    e.currentTarget.onerror = null;
                     e.currentTarget.src =
                       "https://cdn-icons-png.flaticon.com/512/847/847969.png";
                   }}
@@ -181,9 +194,13 @@ const ChatContainer = () => {
                   src={message.image}
                   alt="Attachment"
                   className="sm:max-w-[200px] rounded-md mb-2"
-                  onLoad={() =>
-                    messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
-                  }
+                  onLoad={() => {
+                    // re-scroll once the image has rendered
+                    messageEndRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "end",
+                    });
+                  }}
                 />
               )}
               {message.text && <p>{message.text}</p>}
@@ -191,20 +208,11 @@ const ChatContainer = () => {
           </div>
         ))}
 
-        {/* ➋ sentinel div at very bottom */}
+        {/* sentinel div */}
         <div ref={messageEndRef} />
       </div>
 
       <MessageInput />
-
-      {/* ➌ floating scroll-down button */}
-      <button
-        onClick={() => messageEndRef.current?.scrollIntoView({ behavior: "smooth" })}
-        className="fixed bottom-20 right-4 p-2 rounded-full shadow-lg bg-white hover:bg-gray-100 transition"
-        aria-label="Scroll to bottom"
-      >
-        <ChevronDown size={24} />
-      </button>
     </div>
   );
 };
